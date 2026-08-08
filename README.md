@@ -1,6 +1,14 @@
-# ITS PROS — refonte (maquette)
+# ITS PROS — site web
 
-Structure du projet :
+Site vitrine pour ITS PROS, entreprise de chauffage / climatisation / plomberie basée à Brignoles & Saint-Maximin-la-Sainte-Baume (Var, France).
+
+🔗 **Site en ligne :** [its-pros.com](https://its-pros.com)
+
+---
+
+## Stack
+
+Aucune dépendance, aucun build. Juste du HTML / CSS / JS statique.
 
 ```
 its-pros-site/
@@ -9,66 +17,63 @@ its-pros-site/
 │   └── style.css
 ├── js/
 │   └── script.js
+├── img/          → logo, favicon, photos "Froid commercial" (pic1.jpg à pic6.jpg)
+├── pics/         → photos de la galerie "Réalisations" (im1.jpg à im10.jpg)
+├── robots.txt
+├── sitemap.xml
 └── README.md
 ```
 
-## Lancer le site en local
+## Lancer en local
 
-Pas besoin d'installer quoi que ce soit de spécial (pas de build, pas de framework).
+**Rapide :** double-clique sur `index.html`.
 
-**Option la plus simple :** double-clique sur `index.html`, il s'ouvre directement dans ton navigateur.
-
-**Option recommandée (évite certains soucis d'affichage avec les polices/images) :**
-
-Si tu as Python installé (souvent déjà le cas) :
+**Recommandé** (évite quelques comportements bizarres liés au protocole `file://`, notamment sur le formulaire et la carte) :
 ```bash
 cd its-pros-site
 python3 -m http.server 8000
 ```
-Puis ouvre `http://localhost:8000` dans ton navigateur.
+puis ouvre `http://localhost:8000`.
 
-Si tu as VS Code : installe l'extension **Live Server**, clic droit sur `index.html` → "Open with Live Server".
+Sans Python : extension **Live Server** sur VS Code → clic droit sur `index.html` → *Open with Live Server*.
 
-## Ce qui est réel vs. ce qui reste à faire
+## Déploiement
 
-- Toutes les infos (services, téléphone, e-mail, villes, badge RGE, photos de chantiers) viennent du site actuel — rien n'a été inventé.
-- Les photos de la galerie sont chargées depuis le CDN du site actuel (`primary.jwwb.nl`) le temps du concept — à héberger toi-même une fois validé.
-- Le formulaire de contact (`#contact`) envoie maintenant réellement les messages, via **FormSubmit.co** (gratuit, sans backend à héberger). ⚠️ Étape obligatoire avant que ça marche : la toute première fois qu'un message est envoyé à `contact@its-pros.com`, FormSubmit envoie un e-mail de confirmation à cette adresse — il faut cliquer sur "Activate form" dans cet e-mail une seule fois. Après ça, tous les messages suivants arrivent normalement dans la boîte mail.
-  - Si `contact@its-pros.com` n'est pas (ou plus) une adresse que vous surveillez, changez-la dans `index.html` : cherchez `formsubmit.co/ajax/contact@its-pros.com` et remplacez par la bonne adresse.
-  - Testez une fois vous-même avant de livrer au client, pour être sûr que le mail arrive bien.
-- La carte est un simple embed Google Maps centré sur Brignoles.
+Le site est hébergé sur **Netlify**, connecté à ce dépôt GitHub — un `git push` sur `main` redéploie automatiquement. Pas de commande de build à configurer côté Netlify (site statique, dossier de publication = racine).
 
-## Sécurité — ce qui a été ajouté
+Domaine `its-pros.com` pointé vers Netlify via les DNS. Certificat HTTPS géré automatiquement par Netlify (Let's Encrypt).
 
-- **Content-Security-Policy** (balise meta dans `<head>`) : n'autorise le chargement de scripts/styles/images/connexions que depuis les domaines réellement utilisés (Google Fonts, le CDN photo actuel, FormSubmit, Google Maps). Bloque toute injection de script externe non prévue.
-- **`rel="noopener noreferrer"`** sur tous les liens qui s'ouvrent dans un nouvel onglet (galerie, WhatsApp) — empêche la page ouverte d'accéder à `window.opener` et ne transmet pas l'URL d'origine.
-- **Honeypot anti-spam** sur le formulaire (`_honey`) — champ invisible pour un humain, presque toujours rempli par un robot.
-- **Limites de longueur (`maxlength`)** sur tous les champs du formulaire, en plus de la validation `required`/`type=email` déjà en place.
-- J'ai retiré le lien Instagram (`its_proscvc`) : c'était un identifiant que j'avais inventé sans le vérifier, pas une vraie info du client. Un bouton qui pointe vers un mauvais compte n'est pas vraiment "fonctionnel" — donne-moi le vrai identifiant Instagram et je le réintègre.
+## Fonctionnalités
 
-**Ce qu'une balise `<meta>` ne peut pas faire**, et qu'il faudra configurer côté hébergeur au moment de la mise en ligne (Netlify, OVH, Vercel...) :
-- Forcer HTTPS strictement (en-tête `Strict-Transport-Security`)
-- Empêcher l'affichage du site dans une `<iframe>` externe (`X-Frame-Options`)
-- Empêcher le navigateur de deviner le type d'un fichier (`X-Content-Type-Options: nosniff`)
+- **Formulaire de contact fonctionnel** via [FormSubmit.co](https://formsubmit.co) (pas de backend à héberger). Envoie vers l'adresse configurée dans `index.html` (chercher `formsubmit.co/ajax/`). Honeypot anti-spam inclus.
+- **Galerie** avec affichage progressif ("Voir plus") pour ne pas charger 69 photos d'un coup.
+- **Données structurées SEO** (JSON-LD `HVACBusiness`, Open Graph, `robots.txt` + `sitemap.xml`) — voir section SEO plus bas.
+- **Content-Security-Policy** restrictive (balise meta) — n'autorise que les domaines réellement utilisés (Google Fonts, FormSubmit, Google Maps, CDN photo).
+- Responsive, sans framework JS.
 
-La plupart des hébergeurs statiques modernes (Netlify, Vercel) activent une partie de ça par défaut — je peux te donner la config exacte une fois que tu as choisi où héberger.
+## Photos à fournir
 
-## Checklist avant de livrer à un vrai client
+Ces emplacements affichent une icône d'image cassée tant que les fichiers ne sont pas présents (comportement normal, rien à modifier dans le code) :
 
-- [ ] Activer le formulaire (voir ci-dessus) et faire un vrai test d'envoi
-- [ ] Me donner le vrai identifiant Instagram (ou dire s'il n'y en a pas) pour remettre le bouton
-- [ ] Remplacer les photos de galerie hébergées sur l'ancien CDN (`primary.jwwb.nl`) par des copies hébergées chez vous — actuellement le site "emprunte" les images depuis l'ancien site, ce qui marche tant que celui-ci reste en ligne, mais n'est pas fiable à long terme
-- [ ] Acheter un nom de domaine + un hébergement (n'importe quel hébergeur statique fonctionne : OVH, Netlify, Vercel, etc. — pas besoin de PHP/base de données)
-- [ ] Vérifier l'affichage sur un vrai téléphone (pas juste la fenêtre réduite du navigateur)
-- [ ] Remplacer/valider le numéro de téléphone, l'e-mail et les villes desservies avec le client
+| Emplacement | Fichiers attendus |
+|---|---|
+| Service "Froid commercial" | `img/pic1.jpg` → `img/pic6.jpg` |
+| Section "Réalisations" | `pics/im1.jpg` → `pics/im10.jpg` |
 
-## Prochaine étape
+## SEO
 
-Une fois que tu as regardé ça chez toi, dis-moi ce qui te plaît / pas, et on ajuste — couleurs, structure, contenu, ou on part sur autre chose.
+- Balises Open Graph / Twitter Card (aperçu propre sur WhatsApp, Facebook, LinkedIn)
+- JSON-LD `schema.org/HVACBusiness` — aide Google à comprendre qu'il s'agit d'une entreprise locale (nom, téléphone, zone desservie)
+- `robots.txt` + `sitemap.xml` à la racine
+- `<link rel="canonical">` vers `https://its-pros.com/`
 
-## Dossiers photos à remplir
+⚠️ Si le bloc JSON-LD (`<script type="application/ld+json">` dans le `<head>`) est modifié, le hash de sécurité dans la CSP doit être recalculé, sinon le navigateur bloquera silencieusement ce script.
 
-- `img/pic1.jpg` à `img/pic6.jpg` — photos du service "Froid commercial"
-- `pics/im1.jpg` à `pics/im10.jpg` — photos de la section "Réalisations" (galerie)
+Avoir les bonnes balises ne suffit pas à apparaître sur Google — il faut aussi soumettre le site via [Google Search Console](https://search.google.com/search-console) (ajouter la propriété, soumettre `sitemap.xml`, demander l'indexation) et créer une fiche **Google Business Profile**, plus déterminante que le site lui-même pour une recherche locale.
 
-Tant qu'un fichier n'est pas présent, son emplacement affiche une icône d'image cassée — normal, rien à modifier dans le code une fois les fichiers ajoutés avec les bons noms.
+## À vérifier / reste à faire
+
+- [ ] Confirmer que le formulaire de contact a bien été activé (premier envoi → e-mail de confirmation FormSubmit → cliquer "Activate form")
+- [ ] Déposer les photos manquantes (voir tableau ci-dessus)
+- [ ] Migrer les 59 photos historiques encore hébergées sur l'ancien CDN (`primary.jwwb.nl`) vers un hébergement propre — ça marche tant que l'ancien site reste en ligne, mais c'est une dépendance externe fragile
+- [ ] Soumettre le site à Google Search Console + créer la fiche Google Business Profile
