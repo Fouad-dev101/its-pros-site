@@ -45,3 +45,7 @@ puis ouvrir `http://localhost:8000`. Fonctionne aussi en ouvrant `index.html` di
 ## Déploiement
 
 Hébergé sur [Netlify](https://netlify.com), déployé automatiquement depuis la branche `main` de ce dépôt.
+
+## Auteur
+
+Site conçu et développé par Fouad ([@Fouad-dev101](https://github.com/Fouad-dev101)).
